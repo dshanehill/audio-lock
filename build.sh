@@ -13,5 +13,6 @@ lipo -create build/AudioLock-arm64 build/AudioLock-x86_64 -output "$APP/Contents
 cp Info.plist "$APP/Contents/Info.plist"
 swift Tools/make-icon.swift build/AppIcon.iconset
 iconutil -c icns build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
+swift Tools/menubar-preview.swift "$APP/Contents/Resources/MenuBarIcon-preview.png"
 codesign --force --sign - "$APP"
 echo "Built $APP"
