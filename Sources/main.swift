@@ -2,7 +2,7 @@
 // When a display (like a TV over AirPlay) connects or disconnects and macOS
 // switches the sound on its own, Audio Lock switches it straight back.
 // Changes you make yourself in Sound settings are kept.
-// A lock icon in the menu bar shows that it is on, with a menu to turn it off or quit.
+// A headphones-and-lock icon in the menu bar shows that it is on, with a menu to turn it off or quit.
 
 import Cocoa
 import CoreAudio
@@ -203,7 +203,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         lock.start()
 
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         menu.delegate = self
         statusItem.menu = menu
         updateIcon()
@@ -216,13 +216,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func updateIcon() {
         guard let button = statusItem.button else { return }
-        let symbol = lock.isOn ? "lock.fill" : "lock.open"
-        let config = NSImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
-        let image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)?.withSymbolConfiguration(config)
-        image?.isTemplate = true
-        button.image = image
+        button.image = Self.menuBarIcon(locked: lock.isOn)
+        button.imagePosition = .imageOnly
         button.setAccessibilityLabel(lock.isOn ? "Audio Lock, on" : "Audio Lock, off")
         button.toolTip = lock.isOn ? "Audio Lock is on" : "Audio Lock is off"
+    }
+
+    /// Headphones with a lock in the middle. When off, the lock is left out.
+    static func menuBarIcon(locked: Bool) -> NSImage {
+        let size = NSSize(width: 22, height: 20)
+        let image = NSImage(size: size, flipped: false) { rect in
+            let phonesConfig = NSImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+            if let phones = NSImage(systemSymbolName: "headphones", accessibilityDescription: nil)?
+                .withSymbolConfiguration(phonesConfig) {
+                let s = phones.size
+                phones.draw(in: NSRect(x: (rect.width - s.width) / 2, y: (rect.height - s.height) / 2,
+                                       width: s.width, height: s.height))
+            }
+            if locked {
+                let lockConfig = NSImage.SymbolConfiguration(pointSize: 8, weight: .bold)
+                if let lockImage = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: nil)?
+                    .withSymbolConfiguration(lockConfig) {
+                    let s = lockImage.size
+                    lockImage.draw(in: NSRect(x: (rect.width - s.width) / 2, y: (rect.height - s.height) / 2 - 1,
+                                              width: s.width, height: s.height))
+                }
+            }
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 
     private func bigItem(_ title: String, bold: Bool = false, action: Selector? = nil) -> NSMenuItem {
