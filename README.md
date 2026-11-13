@@ -4,7 +4,7 @@ A tiny Mac app that keeps your sound where you put it.
 
 When you connect a TV or another display (for example with AirPlay / Screen Mirroring), macOS often switches your sound to that TV on its own. Audio Lock switches it straight back to the speakers or headphones you were using, usually before you notice.
 
-- A lock icon in the menu bar shows it is on. Click it to see which device your sound is locked to, turn the lock off or on, or quit.
+- A headphones-with-a-lock icon in the menu bar shows it is on. Click it to see which device your sound is locked to, turn the lock off or on, or quit.
 - Nothing to set up. It locks to whatever you are listening on when it starts.
 - Changes you make yourself in **System Settings → Sound** are kept. Only switches caused by a display or device connecting are undone.
 - Starts automatically when you log in.
