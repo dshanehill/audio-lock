@@ -222,29 +222,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         button.toolTip = lock.isOn ? "Audio Lock is on" : "Audio Lock is off"
     }
 
-    /// Headphones with a lock in the middle. When off, the lock is left out.
+    /// The Audio Lock logo for the menu bar: blue rounded square, white headphones,
+    /// orange lock in the middle. When off, the square turns gray and the lock is left out.
     static func menuBarIcon(locked: Bool) -> NSImage {
-        let size = NSSize(width: 22, height: 20)
-        let image = NSImage(size: size, flipped: false) { rect in
-            let phonesConfig = NSImage.SymbolConfiguration(pointSize: 17, weight: .regular)
-            if let phones = NSImage(systemSymbolName: "headphones", accessibilityDescription: nil)?
-                .withSymbolConfiguration(phonesConfig) {
+        let side: CGFloat = 18
+        let image = NSImage(size: NSSize(width: side, height: side), flipped: false) { rect in
+            let body = rect.insetBy(dx: 0.5, dy: 0.5)
+            let path = NSBezierPath(roundedRect: body, xRadius: body.width * 0.24, yRadius: body.width * 0.24)
+            let top = locked ? NSColor(red: 0.20, green: 0.45, blue: 1.0, alpha: 1) : NSColor(white: 0.55, alpha: 1)
+            let bottom = locked ? NSColor(red: 0.10, green: 0.16, blue: 0.55, alpha: 1) : NSColor(white: 0.35, alpha: 1)
+            NSGradient(starting: top, ending: bottom)?.draw(in: path, angle: -90)
+
+            func symbol(_ name: String, _ size: CGFloat, _ weight: NSFont.Weight, _ color: NSColor) -> NSImage? {
+                let config = NSImage.SymbolConfiguration(pointSize: size, weight: weight)
+                    .applying(.init(paletteColors: [color]))
+                return NSImage(systemSymbolName: name, accessibilityDescription: nil)?.withSymbolConfiguration(config)
+            }
+            if let phones = symbol("headphones", side * 0.62, .bold, .white) {
                 let s = phones.size
                 phones.draw(in: NSRect(x: (rect.width - s.width) / 2, y: (rect.height - s.height) / 2,
                                        width: s.width, height: s.height))
             }
-            if locked {
-                let lockConfig = NSImage.SymbolConfiguration(pointSize: 8, weight: .bold)
-                if let lockImage = NSImage(systemSymbolName: "lock.fill", accessibilityDescription: nil)?
-                    .withSymbolConfiguration(lockConfig) {
-                    let s = lockImage.size
-                    lockImage.draw(in: NSRect(x: (rect.width - s.width) / 2, y: (rect.height - s.height) / 2 - 1,
-                                              width: s.width, height: s.height))
-                }
+            if locked, let lockImage = symbol("lock.fill", side * 0.30, .heavy,
+                                              NSColor(red: 1.0, green: 0.66, blue: 0.0, alpha: 1)) {
+                let s = lockImage.size
+                lockImage.draw(in: NSRect(x: (rect.width - s.width) / 2, y: (rect.height - s.height) / 2 - side * 0.05,
+                                          width: s.width, height: s.height))
             }
             return true
         }
-        image.isTemplate = true
+        image.isTemplate = false
         return image
     }
 
