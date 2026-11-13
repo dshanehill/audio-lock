@@ -22,8 +22,8 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1
-          name: Audio Lock 1.1
+          tag_name: v1.2
+          name: Audio Lock 1.2
           files: |
             build/AudioLock.zip
             build/AppIcon.png
