@@ -5,9 +5,9 @@ import AppKit
 let out = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "AppIcon.iconset"
 try? FileManager.default.createDirectory(atPath: out, withIntermediateDirectories: true)
 
-func symbol(_ name: String, size: CGFloat, weight: NSFont.Weight) -> NSImage? {
+func symbol(_ name: String, size: CGFloat, weight: NSFont.Weight, color: NSColor = .white) -> NSImage? {
     let config = NSImage.SymbolConfiguration(pointSize: size, weight: weight)
-        .applying(.init(paletteColors: [.white]))
+        .applying(.init(paletteColors: [color]))
     return NSImage(systemSymbolName: name, accessibilityDescription: nil)?.withSymbolConfiguration(config)
 }
 
@@ -26,20 +26,16 @@ func draw(_ px: Int) -> Data? {
     NSGradient(starting: NSColor(red: 0.20, green: 0.45, blue: 1.0, alpha: 1),
                ending: NSColor(red: 0.10, green: 0.16, blue: 0.55, alpha: 1))?.draw(in: path, angle: -90)
 
-    // Speaker in the middle.
-    if let speaker = symbol("speaker.wave.2.fill", size: s * 0.36, weight: .semibold) {
-        let sz = speaker.size
-        speaker.draw(in: NSRect(x: (s - sz.width) / 2 - s * 0.03, y: (s - sz.height) / 2 + s * 0.04,
-                                width: sz.width, height: sz.height))
+    // Large white headphones filling the icon.
+    if let phones = symbol("headphones", size: s * 0.52, weight: .semibold) {
+        let sz = phones.size
+        phones.draw(in: NSRect(x: (s - sz.width) / 2, y: (s - sz.height) / 2,
+                               width: sz.width, height: sz.height))
     }
-    // Lock badge, bottom right.
-    let badgeD = s * 0.34
-    let badge = NSRect(x: rect.maxX - badgeD - s * 0.02, y: rect.minY + s * 0.02, width: badgeD, height: badgeD)
-    NSColor(red: 1.0, green: 0.62, blue: 0.0, alpha: 1).setFill()
-    NSBezierPath(ovalIn: badge).fill()
-    if let lock = symbol("lock.fill", size: badgeD * 0.45, weight: .bold) {
+    // Orange lock in the middle, between the ear cups.
+    if let lock = symbol("lock.fill", size: s * 0.20, weight: .bold, color: NSColor(red: 1.0, green: 0.66, blue: 0.0, alpha: 1)) {
         let sz = lock.size
-        lock.draw(in: NSRect(x: badge.midX - sz.width / 2, y: badge.midY - sz.height / 2,
+        lock.draw(in: NSRect(x: (s - sz.width) / 2, y: (s - sz.height) / 2 - s * 0.03,
                              width: sz.width, height: sz.height))
     }
     NSGraphicsContext.restoreGraphicsState()
